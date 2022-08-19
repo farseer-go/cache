@@ -17,10 +17,7 @@ type po struct {
 func TestSetProfilesInMemory(t *testing.T) {
 	modules.StartModules(Module{})
 	SetProfilesInMemory[po]("test", "Name", 5)
-	profiles, exists := cacheConfigure["test"]
-	assert.True(t, exists)
-
-	cacheMange := profiles.(CacheManage[po])
+	cacheMange := GetCacheManage[po]("test")
 
 	assert.Equal(t, cacheMange.Key, "test")
 	assert.Equal(t, cacheMange.UniqueField, "Name")
@@ -35,10 +32,7 @@ func TestSetProfilesInMemory(t *testing.T) {
 func TestSetProfilesInRedis(t *testing.T) {
 	modules.StartModules(Module{})
 	SetProfilesInRedis[po]("test1", "default", "Name", 5)
-	profiles, exists := cacheConfigure["test1"]
-	assert.True(t, exists)
-
-	cacheMange := profiles.(CacheManage[po])
+	cacheMange := GetCacheManage[po]("test1")
 
 	assert.Equal(t, cacheMange.Key, "test1")
 	assert.Equal(t, cacheMange.UniqueField, "Name")
@@ -53,10 +47,7 @@ func TestSetProfilesInRedis(t *testing.T) {
 func TestSetProfilesInMemoryAndRedis(t *testing.T) {
 	modules.StartModules(Module{})
 	SetProfilesInMemoryAndRedis[po]("test2", "default", "Name", 5, 6)
-	profiles, exists := cacheConfigure["test2"]
-	assert.True(t, exists)
-
-	cacheMange := profiles.(CacheManage[po])
+	cacheMange := GetCacheManage[po]("test2")
 
 	assert.Equal(t, cacheMange.Key, "test2")
 	assert.Equal(t, cacheMange.UniqueField, "Name")
@@ -71,10 +62,7 @@ func TestSetProfilesInMemoryAndRedis(t *testing.T) {
 func TestSetSingleProfilesInMemory(t *testing.T) {
 	modules.StartModules(Module{})
 	SetSingleProfilesInMemory[po]("test3", 5)
-	profiles, exists := cacheConfigure["test3"]
-	assert.True(t, exists)
-
-	cacheMange := profiles.(CacheManage[po])
+	cacheMange := GetCacheManage[po]("test3")
 
 	assert.Equal(t, cacheMange.Key, "test3")
 	assert.Equal(t, cacheMange.UniqueField, "")
@@ -89,10 +77,7 @@ func TestSetSingleProfilesInMemory(t *testing.T) {
 func TestSetSingleProfilesInRedis(t *testing.T) {
 	modules.StartModules(Module{})
 	SetSingleProfilesInRedis[po]("test4", "default", 5)
-	profiles, exists := cacheConfigure["test4"]
-	assert.True(t, exists)
-
-	cacheMange := profiles.(CacheManage[po])
+	cacheMange := GetCacheManage[po]("test4")
 
 	assert.Equal(t, cacheMange.Key, "test4")
 	assert.Equal(t, cacheMange.UniqueField, "")
@@ -107,10 +92,7 @@ func TestSetSingleProfilesInRedis(t *testing.T) {
 func TestSetSingleProfilesInMemoryAndRedis(t *testing.T) {
 	modules.StartModules(Module{})
 	SetSingleProfilesInMemoryAndRedis[po]("test5", "default", 6, 7)
-	profiles, exists := cacheConfigure["test5"]
-	assert.True(t, exists)
-
-	cacheMange := profiles.(CacheManage[po])
+	cacheMange := GetCacheManage[po]("test5")
 
 	assert.Equal(t, cacheMange.Key, "test5")
 	assert.Equal(t, cacheMange.UniqueField, "")
