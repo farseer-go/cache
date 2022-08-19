@@ -83,6 +83,7 @@ func SetProfilesInMemoryAndRedis[TEntity any](key string, redisConfigName string
 	}
 }
 
+/*
 // SetSingleProfilesInMemory 设置内存缓存（缓存单个对象）
 func SetSingleProfilesInMemory[TEntity any](key string, memoryExpiry time.Duration) {
 	var entity TEntity
@@ -130,3 +131,4 @@ func SetSingleProfilesInMemoryAndRedis[TEntity any](key string, redisConfigName 
 		},
 	}
 }
+*/

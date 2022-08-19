@@ -6,7 +6,6 @@ import (
 	"github.com/farseer-go/fs/parse"
 	"github.com/farseer-go/mapper"
 	"reflect"
-	"strings"
 	"time"
 )
 
@@ -57,6 +56,12 @@ func (receiver CacheManage[TEntity]) Get() collections.List[TEntity] {
 	return mapper.ToList[TEntity](lst)
 }
 
+// Single 获取单个对象
+func (receiver CacheManage[TEntity]) Single() TEntity {
+	lst := receiver.Cache.Get(receiver.CacheKey)
+	return mapper.ToList[TEntity](lst).First()
+}
+
 // GetItem 从集合中获取指定cacheId的元素
 func (receiver CacheManage[TEntity]) GetItem(cacheId any) (TEntity, bool) {
 	item := receiver.Cache.GetItem(receiver.CacheKey, parse.Convert(cacheId, ""))
@@ -68,25 +73,10 @@ func (receiver CacheManage[TEntity]) GetItem(cacheId any) (TEntity, bool) {
 }
 
 // Set 保存缓存
-func (receiver CacheManage[TEntity]) Set(val any) {
-	valValue := reflect.ValueOf(val)
-	valType := valValue.Type()
+func (receiver CacheManage[TEntity]) Set(val ...TEntity) {
 	lst := collections.NewListAny()
-
-	// 数据是数组切片时
-	if valType.Kind() == reflect.Slice || valType.Kind() == reflect.Array {
-		for i := 0; i < valValue.Len(); i++ {
-			itemValue := valValue.Index(i)
-			lst.Add(itemValue.Interface())
-		}
-	} else if strings.HasPrefix(valType.String(), "collections.List[") { // 数据是List时
-		arrValue := valValue.MethodByName("ToArray").Call(nil)[0]
-		for i := 0; i < arrValue.Len(); i++ {
-			itemValue := arrValue.Index(i)
-			lst.Add(itemValue.Interface())
-		}
-	} else { // 数据作为单个item保存
-		lst.Add(val)
+	for _, entity := range val {
+		lst.Add(entity)
 	}
 	receiver.Cache.Set(receiver.CacheKey, lst)
 }

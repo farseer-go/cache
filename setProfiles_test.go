@@ -59,6 +59,7 @@ func TestSetProfilesInMemoryAndRedis(t *testing.T) {
 	assert.Equal(t, cacheMange.RedisExpiry, time.Duration(5))
 }
 
+/*
 func TestSetSingleProfilesInMemory(t *testing.T) {
 	modules.StartModules(Module{})
 	SetSingleProfilesInMemory[po]("test3", 5)
@@ -103,3 +104,4 @@ func TestSetSingleProfilesInMemoryAndRedis(t *testing.T) {
 	assert.Equal(t, cacheMange.RedisConfigName, "default")
 	assert.Equal(t, cacheMange.RedisExpiry, time.Duration(6))
 }
+*/
