@@ -27,8 +27,7 @@ func SetProfilesInMemory[TEntity any](key string, uniqueField string, memoryExpi
 			MemoryExpiry:   memoryExpiry,
 			UniqueField:    uniqueField,
 			ItemType:       entityType,
-			//Cache:          newCacheInMemory(),
-			Cache: container.Resolve[ICache](),
+			Cache:          container.ResolveName[ICache]("memory"),
 		},
 	}
 }
@@ -53,8 +52,7 @@ func SetProfilesInRedis[TEntity any](key string, redisConfigName string, uniqueF
 			ItemType:        entityType,
 			UniqueField:     uniqueField,
 			RedisConfigName: redisConfigName,
-			//Cache:          newCacheInMemory(),
-			Cache: container.Resolve[ICache](),
+			Cache:           container.ResolveName[ICache]("redis"),
 		},
 	}
 }
@@ -80,8 +78,7 @@ func SetProfilesInMemoryAndRedis[TEntity any](key string, redisConfigName string
 			UniqueField:     uniqueField,
 			ItemType:        entityType,
 			RedisConfigName: redisConfigName,
-			//Cache:          newCacheInMemory(),
-			Cache: container.Resolve[ICache](),
+			Cache:           container.ResolveName[ICache]("memoryAndRedis"),
 		},
 	}
 }
@@ -96,8 +93,7 @@ func SetSingleProfilesInMemory[TEntity any](key string, memoryExpiry time.Durati
 			CacheStoreType: eumCacheStoreType.Memory,
 			MemoryExpiry:   memoryExpiry,
 			ItemType:       entityType,
-			//Cache:          newCacheInMemory(),
-			Cache: container.Resolve[ICache](),
+			Cache:          container.ResolveName[ICache]("memory"),
 		},
 	}
 }
@@ -113,8 +109,7 @@ func SetSingleProfilesInRedis[TEntity any](key string, redisConfigName string, r
 			RedisExpiry:     redisExpiry,
 			ItemType:        entityType,
 			RedisConfigName: redisConfigName,
-			//Cache:          newCacheInMemory(),
-			Cache: container.Resolve[ICache](),
+			Cache:           container.ResolveName[ICache]("redis"),
 		},
 	}
 }
@@ -131,8 +126,7 @@ func SetSingleProfilesInMemoryAndRedis[TEntity any](key string, redisConfigName 
 			MemoryExpiry:    memoryExpiry,
 			ItemType:        entityType,
 			RedisConfigName: redisConfigName,
-			//Cache:          newCacheInMemory(),
-			Cache: container.Resolve[ICache](),
+			Cache:           container.ResolveName[ICache]("memoryAndRedis"),
 		},
 	}
 }
