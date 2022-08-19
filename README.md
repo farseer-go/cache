@@ -29,7 +29,7 @@ type po struct {
 ```
 
 ### 本地缓存使用
-**注意：你需要在`startupModule`中依赖`memoryCache.Module`模块**
+**注意：你需要在`startupModule`中依赖`cacheMemory.Module`模块**
 ```go
 // 配置缓存
 // arg1: Key name
