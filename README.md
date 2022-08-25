@@ -19,6 +19,8 @@
       * Clear（清空缓存）
       * Exists（缓存是否存在）
       * Count（数据集合的数量）
+      * SetSource（设置数据源）
+      * EnableItemNullToLoadALl（元素不存在时，自动读取数据源）
 
 ## Getting Started
 ```go
