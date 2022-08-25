@@ -39,6 +39,8 @@ func (receiver CacheKey) GetUniqueId(item any) (T string) {
 
 type CacheManage[TEntity any] struct {
 	CacheKey
+	source            func() collections.List[TEntity]
+	itemNullToLoadALl bool
 }
 
 // GetCacheManage 获取CacheKey
@@ -50,9 +52,25 @@ func GetCacheManage[TEntity any](key string) CacheManage[TEntity] {
 	return cacheKey.(CacheManage[TEntity])
 }
 
+// SetSource 设置数据源
+func (receiver *CacheManage[TEntity]) SetSource(getSourceFn func() collections.List[TEntity]) {
+	receiver.source = getSourceFn
+}
+
+// EnableItemNullToLoadALl 元素不存在时，自动读取数据源
+func (receiver *CacheManage[TEntity]) EnableItemNullToLoadALl() {
+	receiver.itemNullToLoadALl = true
+}
+
 // Get 获取缓存数据
 func (receiver CacheManage[TEntity]) Get() collections.List[TEntity] {
 	lst := receiver.Cache.Get(receiver.CacheKey)
+	// 如果数据为空，则调用数据源
+	if lst.IsEmpty() {
+		lstSource := receiver.source()
+		receiver.Set(lstSource.ToArray()...)
+		return lstSource
+	}
 	return mapper.ToList[TEntity](lst)
 }
 
@@ -66,6 +84,18 @@ func (receiver CacheManage[TEntity]) Single() TEntity {
 func (receiver CacheManage[TEntity]) GetItem(cacheId any) (TEntity, bool) {
 	item := receiver.Cache.GetItem(receiver.CacheKey, parse.Convert(cacheId, ""))
 	if item == nil {
+		// 元素不存在时，自动读取数据源
+		if receiver.itemNullToLoadALl {
+			lstSource := receiver.source()
+			receiver.Set(lstSource.ToArray()...)
+			// 从列表中读取元素
+			for _, source := range lstSource.ToArray() {
+				id := receiver.GetUniqueId(source)
+				if cacheId == id {
+					return source, true
+				}
+			}
+		}
 		var entity TEntity
 		return entity, false
 	}
