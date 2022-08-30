@@ -2,7 +2,7 @@ package cache
 
 import (
 	"github.com/farseer-go/cache/eumCacheStoreType"
-	"github.com/farseer-go/fs/modules"
+	"github.com/farseer-go/fs"
 	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
@@ -15,7 +15,14 @@ type po struct {
 }
 
 func TestSetProfilesInMemory(t *testing.T) {
-	modules.StartModules(Module{})
+	fs.Initialize[Module]("unit test")
+	assert.Panics(t, func() {
+		SetProfilesInMemory[po]("test", "", 5)
+	})
+	assert.Panics(t, func() {
+		SetProfilesInMemory[po]("test", "ClientName", 5)
+	})
+
 	SetProfilesInMemory[po]("test", "Name", 5)
 	cacheMange := GetCacheManage[po]("test")
 
@@ -27,10 +34,20 @@ func TestSetProfilesInMemory(t *testing.T) {
 	assert.Equal(t, cacheMange.ItemType, reflect.TypeOf(po{}))
 	assert.Equal(t, cacheMange.RedisConfigName, "")
 	assert.Equal(t, cacheMange.RedisExpiry, time.Duration(0))
+
+	fs.Exit()
 }
 
 func TestSetProfilesInRedis(t *testing.T) {
-	modules.StartModules(Module{})
+	fs.Initialize[Module]("unit test")
+
+	assert.Panics(t, func() {
+		SetProfilesInRedis[po]("test1", "default", "", 5)
+	})
+	assert.Panics(t, func() {
+		SetProfilesInRedis[po]("test1", "default", "ClientName", 5)
+	})
+
 	SetProfilesInRedis[po]("test1", "default", "Name", 5)
 	cacheMange := GetCacheManage[po]("test1")
 
@@ -45,7 +62,15 @@ func TestSetProfilesInRedis(t *testing.T) {
 }
 
 func TestSetProfilesInMemoryAndRedis(t *testing.T) {
-	modules.StartModules(Module{})
+	fs.Initialize[Module]("unit test")
+
+	assert.Panics(t, func() {
+		SetProfilesInMemoryAndRedis[po]("test2", "default", "", 5, 6)
+	})
+	assert.Panics(t, func() {
+		SetProfilesInMemoryAndRedis[po]("test2", "default", "ClientName", 5, 6)
+	})
+
 	SetProfilesInMemoryAndRedis[po]("test2", "default", "Name", 5, 6)
 	cacheMange := GetCacheManage[po]("test2")
 
@@ -61,7 +86,7 @@ func TestSetProfilesInMemoryAndRedis(t *testing.T) {
 
 /*
 func TestSetSingleProfilesInMemory(t *testing.T) {
-	modules.StartModules(Module{})
+	fs.Initialize[Module]("unit test")
 	SetSingleProfilesInMemory[po]("test3", 5)
 	cacheMange := GetCacheManage[po]("test3")
 
@@ -76,7 +101,7 @@ func TestSetSingleProfilesInMemory(t *testing.T) {
 }
 
 func TestSetSingleProfilesInRedis(t *testing.T) {
-	modules.StartModules(Module{})
+	fs.Initialize[Module]("unit test")
 	SetSingleProfilesInRedis[po]("test4", "default", 5)
 	cacheMange := GetCacheManage[po]("test4")
 
@@ -91,7 +116,7 @@ func TestSetSingleProfilesInRedis(t *testing.T) {
 }
 
 func TestSetSingleProfilesInMemoryAndRedis(t *testing.T) {
-	modules.StartModules(Module{})
+	fs.Initialize[Module]("unit test")
 	SetSingleProfilesInMemoryAndRedis[po]("test5", "default", 6, 7)
 	cacheMange := GetCacheManage[po]("test5")
 
