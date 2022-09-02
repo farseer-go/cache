@@ -38,8 +38,11 @@ func (receiver CacheKey) GetUniqueId(item any) (T string) {
 }
 
 type CacheManage[TEntity any] struct {
+	// 缓存key
 	CacheKey
-	source            func() collections.List[TEntity]
+	// 数据的来源
+	source func() collections.List[TEntity]
+	// item项为nil时，是否重新加载整个集合
 	itemNullToLoadALl bool
 }
 
@@ -66,7 +69,7 @@ func (receiver *CacheManage[TEntity]) EnableItemNullToLoadALl() {
 func (receiver CacheManage[TEntity]) Get() collections.List[TEntity] {
 	lst := receiver.Cache.Get(receiver.CacheKey)
 	// 如果数据为空，则调用数据源
-	if lst.IsEmpty() {
+	if lst.IsEmpty() && receiver.source != nil {
 		lstSource := receiver.source()
 		receiver.Set(lstSource.ToArray()...)
 		return lstSource
@@ -85,7 +88,7 @@ func (receiver CacheManage[TEntity]) GetItem(cacheId any) (TEntity, bool) {
 	item := receiver.Cache.GetItem(receiver.CacheKey, parse.Convert(cacheId, ""))
 	if item == nil {
 		// 元素不存在时，自动读取数据源
-		if receiver.itemNullToLoadALl {
+		if receiver.itemNullToLoadALl && receiver.source != nil {
 			lstSource := receiver.source()
 			receiver.Set(lstSource.ToArray()...)
 			// 从列表中读取元素
@@ -126,14 +129,19 @@ func (receiver CacheManage[TEntity]) Clear() {
 	receiver.Cache.Clear(receiver.CacheKey)
 }
 
-// Exists 缓存是否存在
-func (receiver CacheManage[TEntity]) Exists() bool {
+// ExistsKey 缓存是否存在
+func (receiver CacheManage[TEntity]) ExistsKey() bool {
 	return receiver.Cache.ExistsKey(receiver.CacheKey)
+}
+
+// ExistsItem 缓存是否存在
+func (receiver CacheManage[TEntity]) ExistsItem(cacheId string) bool {
+	return receiver.Cache.ExistsItem(receiver.CacheKey, cacheId)
 }
 
 // Count 数据集合的数量
 func (receiver CacheManage[TEntity]) Count() int {
-	if !receiver.Exists() {
+	if !receiver.ExistsKey() {
 		return 0
 	}
 	return receiver.Cache.Count(receiver.CacheKey)
