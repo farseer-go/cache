@@ -17,7 +17,7 @@
       * SaveItem（更新缓存）
       * Remove（移除缓存）
       * Clear（清空缓存）
-      * Exists（缓存是否存在）
+      * ExistsKey（缓存是否存在）
       * Count（数据集合的数量）
       * SetSource（设置数据源）
       * EnableItemNullToLoadALl（元素不存在时，自动读取数据源）
@@ -53,7 +53,7 @@ cacheManage.Remove("steden")
 // 清除缓存
 cacheManage.Clear()
 // 检查缓存是否存在
-cacheManage.Exists()
+cacheManage.ExistsKey()
 // 获取缓存的集合数量
 cacheManage.Count()
 ```
