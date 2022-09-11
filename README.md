@@ -19,8 +19,9 @@
       * Clear（清空缓存）
       * ExistsKey（缓存是否存在）
       * Count（数据集合的数量）
-      * SetSource（设置数据源）
-      * EnableItemNullToLoadALl（元素不存在时，自动读取数据源）
+      * SetListSource（设置集合数据源）
+      * SetItemSource（设置Item数据源）
+      * EnableItemNullToLoadALl（元素不存在时，自动读取集合数据源）
 
 ## Getting Started
 ```go
@@ -40,6 +41,27 @@ type po struct {
 cache.SetProfilesInMemory[po]("test", "Name", 60*time.Second)
 // 获取key=test的缓存对象
 cacheManage := cache.GetCacheManage[po]("test")
+
+// 设置：集合数据不存在时，则通过func获取
+cacheManage.SetListSource(func() collections.List[taskGroup.DomainObject] {
+    var lst collections.List[taskGroup.DomainObject]
+    repository.TaskGroup.ToList().MapToList(&lst)
+    return lst
+})
+
+// 设置：元素不存在时，则通过func获取
+cacheManage.SetItemSource(func(cacheId any) (taskGroup.DomainObject, bool) {
+    po := repository.TaskGroup.Where("Id = ?", cacheId).ToEntity()
+    if po.Id > 0 {
+        return mapper.Single[taskGroup.DomainObject](&po), true
+    }
+    var do taskGroup.DomainObject
+      return do, false
+})
+
+// 元素不存在时，自动读取集合数据源（需调用了SetListSource方法）
+cacheManage.EnableItemNullToLoadALl()
+
 // 设置缓存
 cacheManage.Set(po{Name: "steden", Age: 18}, po{Name: "steden2", Age: 19})
 // 获取整个集合

@@ -42,8 +42,11 @@ func (receiver CacheKey) GetUniqueId(item any) (T string) {
 type CacheManage[TEntity any] struct {
 	// 缓存key
 	CacheKey
-	// 数据的来源
-	source func() collections.List[TEntity]
+	// 集合的数据的来源
+	listSourceFn func() collections.List[TEntity]
+	// item的数据来源
+	// bool: isExists
+	itemSourceFn func(cacheId any) (TEntity, bool)
 	// item项为nil时，是否重新加载整个集合
 	itemNullToLoadALl bool
 }
@@ -57,12 +60,17 @@ func GetCacheManage[TEntity any](key string) CacheManage[TEntity] {
 	return cacheKey.(CacheManage[TEntity])
 }
 
-// SetSource 设置数据源
-func (receiver *CacheManage[TEntity]) SetSource(getSourceFn func() collections.List[TEntity]) {
-	receiver.source = getSourceFn
+// SetListSource 集合数据不存在时，则通过getListSourceFn获取
+func (receiver *CacheManage[TEntity]) SetListSource(getListSourceFn func() collections.List[TEntity]) {
+	receiver.listSourceFn = getListSourceFn
 }
 
-// EnableItemNullToLoadALl 元素不存在时，自动读取数据源
+// SetItemSource 元素不存在时，则通过getItemSourceFn获取
+func (receiver *CacheManage[TEntity]) SetItemSource(getItemSourceFn func(cacheId any) (TEntity, bool)) {
+	receiver.itemSourceFn = getItemSourceFn
+}
+
+// EnableItemNullToLoadALl 元素不存在时，自动读取集合数据源
 func (receiver *CacheManage[TEntity]) EnableItemNullToLoadALl() {
 	receiver.itemNullToLoadALl = true
 }
@@ -76,8 +84,8 @@ func (receiver CacheManage[TEntity]) Get() collections.List[TEntity] {
 
 	lst := receiver.Cache.Get(receiver.CacheKey)
 	// 如果数据为空，则调用数据源
-	if lst.IsEmpty() && receiver.source != nil {
-		lstSource := receiver.source()
+	if lst.IsEmpty() && receiver.listSourceFn != nil {
+		lstSource := receiver.listSourceFn()
 		receiver.Set(lstSource.ToArray()...)
 		return lstSource
 	}
@@ -91,7 +99,7 @@ func (receiver CacheManage[TEntity]) Single() TEntity {
 		flog.AppInfof("cacheManage", ".Single：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
 	}()
 
-	lst := receiver.Cache.Get(receiver.CacheKey)
+	lst := receiver.Get()
 	return mapper.ToList[TEntity](lst).First()
 }
 
@@ -104,9 +112,17 @@ func (receiver CacheManage[TEntity]) GetItem(cacheId any) (TEntity, bool) {
 
 	item := receiver.Cache.GetItem(receiver.CacheKey, parse.Convert(cacheId, ""))
 	if item == nil {
+		// 设置了单独的数据源时，则只读item数据源
+		if receiver.itemSourceFn != nil {
+			dbItem, isExists := receiver.itemSourceFn(cacheId)
+			if isExists {
+				receiver.SaveItem(dbItem)
+				return dbItem, true
+			}
+		}
 		// 元素不存在时，自动读取数据源
-		if receiver.itemNullToLoadALl && receiver.source != nil {
-			lstSource := receiver.source()
+		if receiver.itemNullToLoadALl && receiver.listSourceFn != nil {
+			lstSource := receiver.listSourceFn()
 			receiver.Set(lstSource.ToArray()...)
 			// 从列表中读取元素
 			for _, source := range lstSource.ToArray() {
