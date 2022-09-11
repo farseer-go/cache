@@ -79,7 +79,7 @@ func (receiver *CacheManage[TEntity]) EnableItemNullToLoadALl() {
 func (receiver CacheManage[TEntity]) Get() collections.List[TEntity] {
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.AppInfof("cacheManage", ".Get：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
+		flog.ComponentInfof("cacheManage", ".Get：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
 	}()
 
 	lst := receiver.Cache.Get(receiver.CacheKey)
@@ -96,7 +96,7 @@ func (receiver CacheManage[TEntity]) Get() collections.List[TEntity] {
 func (receiver CacheManage[TEntity]) Single() TEntity {
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.AppInfof("cacheManage", ".Single：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
+		flog.ComponentInfof("cacheManage", ".Single：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
 	}()
 
 	lst := receiver.Get()
@@ -107,7 +107,7 @@ func (receiver CacheManage[TEntity]) Single() TEntity {
 func (receiver CacheManage[TEntity]) GetItem(cacheId any) (TEntity, bool) {
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.AppInfof("cacheManage", ".GetItem：%s.%v，耗时：%s", receiver.Key, cacheId, sw.GetMillisecondsText())
+		flog.ComponentInfof("cacheManage", ".GetItem：%s.%v，耗时：%s", receiver.Key, cacheId, sw.GetMillisecondsText())
 	}()
 
 	item := receiver.Cache.GetItem(receiver.CacheKey, parse.Convert(cacheId, ""))
@@ -145,7 +145,7 @@ func (receiver CacheManage[TEntity]) Set(val ...TEntity) {
 	}
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.AppInfof("cacheManage", ".Set：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
+		flog.ComponentInfof("cacheManage", ".Set：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
 	}()
 
 	lst := collections.NewListAny()
@@ -159,7 +159,7 @@ func (receiver CacheManage[TEntity]) Set(val ...TEntity) {
 func (receiver CacheManage[TEntity]) SaveItem(newVal TEntity) {
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.AppInfof("cacheManage", ".SaveItem：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
+		flog.ComponentInfof("cacheManage", ".SaveItem：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
 	}()
 
 	receiver.Cache.SaveItem(receiver.CacheKey, newVal)
@@ -169,7 +169,7 @@ func (receiver CacheManage[TEntity]) SaveItem(newVal TEntity) {
 func (receiver CacheManage[TEntity]) Remove(cacheId string) {
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.AppInfof("[cacheManage].Remove：%s.%v，耗时：%s", receiver.Key, cacheId, sw.GetMillisecondsText())
+		flog.ComponentInfof("[cacheManage].Remove：%s.%v，耗时：%s", receiver.Key, cacheId, sw.GetMillisecondsText())
 	}()
 
 	receiver.Cache.Remove(receiver.CacheKey, cacheId)
@@ -179,7 +179,7 @@ func (receiver CacheManage[TEntity]) Remove(cacheId string) {
 func (receiver CacheManage[TEntity]) Clear() {
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.AppInfof("cacheManage", ".Clear：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
+		flog.ComponentInfof("cacheManage", ".Clear：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
 	}()
 
 	receiver.Cache.Clear(receiver.CacheKey)
@@ -189,7 +189,7 @@ func (receiver CacheManage[TEntity]) Clear() {
 func (receiver CacheManage[TEntity]) ExistsKey() bool {
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.AppInfof("cacheManage", ".ExistsKey：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
+		flog.ComponentInfof("cacheManage", ".ExistsKey：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
 	}()
 
 	return receiver.Cache.ExistsKey(receiver.CacheKey)
@@ -199,7 +199,7 @@ func (receiver CacheManage[TEntity]) ExistsKey() bool {
 func (receiver CacheManage[TEntity]) ExistsItem(cacheId string) bool {
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.AppInfof("cacheManage", ".ExistsItem：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
+		flog.ComponentInfof("cacheManage", ".ExistsItem：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
 	}()
 
 	return receiver.Cache.ExistsItem(receiver.CacheKey, cacheId)
@@ -209,7 +209,7 @@ func (receiver CacheManage[TEntity]) ExistsItem(cacheId string) bool {
 func (receiver CacheManage[TEntity]) Count() int {
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.AppInfof("cacheManage", ".Count：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
+		flog.ComponentInfof("cacheManage", ".Count：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
 	}()
 
 	if !receiver.ExistsKey() {
