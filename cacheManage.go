@@ -138,7 +138,7 @@ func (receiver CacheManage[TEntity]) GetItem(cacheId any) (TEntity, bool) {
 	return item.(TEntity), true
 }
 
-// Set 保存缓存
+// Set 缓存整个集合，将覆盖原有集合（如果有数据）
 func (receiver CacheManage[TEntity]) Set(val ...TEntity) {
 	if len(val) == 0 {
 		return
@@ -155,7 +155,7 @@ func (receiver CacheManage[TEntity]) Set(val ...TEntity) {
 	receiver.Cache.Set(receiver.CacheKey, lst)
 }
 
-// SaveItem 更新缓存
+// SaveItem 更新item数据到集合
 func (receiver CacheManage[TEntity]) SaveItem(newVal TEntity) {
 	sw := stopwatch.StartNew()
 	defer func() {
@@ -165,7 +165,7 @@ func (receiver CacheManage[TEntity]) SaveItem(newVal TEntity) {
 	receiver.Cache.SaveItem(receiver.CacheKey, newVal)
 }
 
-// Remove 移除缓存
+// Remove 移除集合中的item数据
 func (receiver CacheManage[TEntity]) Remove(cacheId string) {
 	sw := stopwatch.StartNew()
 	defer func() {
@@ -175,7 +175,7 @@ func (receiver CacheManage[TEntity]) Remove(cacheId string) {
 	receiver.Cache.Remove(receiver.CacheKey, cacheId)
 }
 
-// Clear 清空缓存
+// Clear 清空数据
 func (receiver CacheManage[TEntity]) Clear() {
 	sw := stopwatch.StartNew()
 	defer func() {
@@ -185,7 +185,7 @@ func (receiver CacheManage[TEntity]) Clear() {
 	receiver.Cache.Clear(receiver.CacheKey)
 }
 
-// ExistsKey 缓存是否存在
+// ExistsKey 缓存集合是否存在：如果没初始过Key，或者Key缓存已失效，都会返回false
 func (receiver CacheManage[TEntity]) ExistsKey() bool {
 	sw := stopwatch.StartNew()
 	defer func() {
@@ -205,7 +205,7 @@ func (receiver CacheManage[TEntity]) ExistsItem(cacheId string) bool {
 	return receiver.Cache.ExistsItem(receiver.CacheKey, cacheId)
 }
 
-// Count 数据集合的数量
+// Count 获取集合内的数量
 func (receiver CacheManage[TEntity]) Count() int {
 	sw := stopwatch.StartNew()
 	defer func() {
