@@ -27,7 +27,7 @@ func SetProfilesInMemory[TEntity any](key string, uniqueField string, memoryExpi
 			MemoryExpiry:   memoryExpiry,
 			UniqueField:    uniqueField,
 			ItemType:       entityType,
-			Cache:          container.ResolveName[ICache]("memory"),
+			Cache:          container.Resolve[ICache]("memory"),
 		},
 	}
 }
@@ -52,7 +52,7 @@ func SetProfilesInRedis[TEntity any](key string, redisConfigName string, uniqueF
 			ItemType:        entityType,
 			UniqueField:     uniqueField,
 			RedisConfigName: redisConfigName,
-			Cache:           container.ResolveName[ICache]("redis"),
+			Cache:           container.Resolve[ICache]("redis"),
 		},
 	}
 }
@@ -78,7 +78,7 @@ func SetProfilesInMemoryAndRedis[TEntity any](key string, redisConfigName string
 			UniqueField:     uniqueField,
 			ItemType:        entityType,
 			RedisConfigName: redisConfigName,
-			Cache:           container.ResolveName[ICache]("memoryAndRedis"),
+			Cache:           container.Resolve[ICache]("memoryAndRedis"),
 		},
 	}
 }
