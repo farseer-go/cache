@@ -20,7 +20,7 @@ func SetProfilesInMemory[TEntity any](key string, uniqueField string, memoryExpi
 		exception.ThrowRefuseException(uniqueField + "字段，在缓存集合中不存在")
 	}
 
-	cacheConfigure[key] = CacheManage[TEntity]{
+	var cacheManage ICacheManage[TEntity] = &cacheManage[TEntity]{
 		CacheKey: CacheKey{
 			Key:            key,
 			CacheStoreType: eumCacheStoreType.Memory,
@@ -30,6 +30,7 @@ func SetProfilesInMemory[TEntity any](key string, uniqueField string, memoryExpi
 			Cache:          container.Resolve[ICache]("memory"),
 		},
 	}
+	container.RegisterInstance[ICacheManage[TEntity]](cacheManage, key)
 }
 
 // SetProfilesInRedis 设置Redis缓存（集合）
@@ -44,7 +45,7 @@ func SetProfilesInRedis[TEntity any](key string, redisConfigName string, uniqueF
 		exception.ThrowRefuseException(uniqueField + "字段，在缓存集合中不存在")
 	}
 
-	cacheConfigure[key] = CacheManage[TEntity]{
+	var cacheManage ICacheManage[TEntity] = &cacheManage[TEntity]{
 		CacheKey: CacheKey{
 			Key:             key,
 			CacheStoreType:  eumCacheStoreType.Redis,
@@ -55,6 +56,7 @@ func SetProfilesInRedis[TEntity any](key string, redisConfigName string, uniqueF
 			Cache:           container.Resolve[ICache]("redis"),
 		},
 	}
+	container.RegisterInstance[ICacheManage[TEntity]](cacheManage, key)
 }
 
 // SetProfilesInMemoryAndRedis 设置内存-Redis缓存（集合）
@@ -69,7 +71,7 @@ func SetProfilesInMemoryAndRedis[TEntity any](key string, redisConfigName string
 		exception.ThrowRefuseException(uniqueField + "字段，在缓存集合中不存在")
 	}
 
-	cacheConfigure[key] = CacheManage[TEntity]{
+	var cacheManage ICacheManage[TEntity] = &cacheManage[TEntity]{
 		CacheKey: CacheKey{
 			Key:             key,
 			CacheStoreType:  eumCacheStoreType.MemoryAndRedis,
@@ -81,6 +83,7 @@ func SetProfilesInMemoryAndRedis[TEntity any](key string, redisConfigName string
 			Cache:           container.Resolve[ICache]("memoryAndRedis"),
 		},
 	}
+	container.RegisterInstance[ICacheManage[TEntity]](cacheManage, key)
 }
 
 /*
@@ -88,8 +91,8 @@ func SetProfilesInMemoryAndRedis[TEntity any](key string, redisConfigName string
 func SetSingleProfilesInMemory[TEntity any](key string, memoryExpiry time.Duration) {
 	var entity TEntity
 	entityType := reflect.TypeOf(entity)
-	cacheConfigure[key] = CacheManage[TEntity]{
-		CacheKey: CacheKey{
+	var cacheManage ICacheManage[TEntity] = &cacheManage[TEntity]{
+		cacheKey: cacheKey{
 			Key:            key,
 			CacheStoreType: eumCacheStoreType.Memory,
 			MemoryExpiry:   memoryExpiry,
@@ -97,14 +100,15 @@ func SetSingleProfilesInMemory[TEntity any](key string, memoryExpiry time.Durati
 			Cache:          container.ResolveName[ICache]("memory"),
 		},
 	}
+	container.RegisterInstance[ICacheManage[TEntity]](cacheManage, key)
 }
 
 // SetSingleProfilesInRedis 设置Redis缓存（缓存单个对象）
 func SetSingleProfilesInRedis[TEntity any](key string, redisConfigName string, redisExpiry time.Duration) {
 	var entity TEntity
 	entityType := reflect.TypeOf(entity)
-	cacheConfigure[key] = CacheManage[TEntity]{
-		CacheKey: CacheKey{
+	var cacheManage ICacheManage[TEntity] = &cacheManage[TEntity]{
+		cacheKey: cacheKey{
 			Key:             key,
 			CacheStoreType:  eumCacheStoreType.Redis,
 			RedisExpiry:     redisExpiry,
@@ -113,14 +117,15 @@ func SetSingleProfilesInRedis[TEntity any](key string, redisConfigName string, r
 			Cache:           container.ResolveName[ICache]("redis"),
 		},
 	}
+	container.RegisterInstance[ICacheManage[TEntity]](cacheManage, key)
 }
 
 // SetSingleProfilesInMemoryAndRedis 设置内存-Redis缓存（缓存单个对象）
 func SetSingleProfilesInMemoryAndRedis[TEntity any](key string, redisConfigName string, redisExpiry time.Duration, memoryExpiry time.Duration) {
 	var entity TEntity
 	entityType := reflect.TypeOf(entity)
-	cacheConfigure[key] = CacheManage[TEntity]{
-		CacheKey: CacheKey{
+	var cacheManage ICacheManage[TEntity] = &cacheManage[TEntity]{
+		cacheKey: cacheKey{
 			Key:             key,
 			CacheStoreType:  eumCacheStoreType.MemoryAndRedis,
 			RedisExpiry:     redisExpiry,
@@ -130,5 +135,6 @@ func SetSingleProfilesInMemoryAndRedis[TEntity any](key string, redisConfigName 
 			Cache:           container.ResolveName[ICache]("memoryAndRedis"),
 		},
 	}
+	container.RegisterInstance[ICacheManage[TEntity]](cacheManage, key)
 }
 */

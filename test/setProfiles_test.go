@@ -4,6 +4,7 @@ import (
 	"github.com/farseer-go/cache"
 	"github.com/farseer-go/cache/eumCacheStoreType"
 	"github.com/farseer-go/fs"
+	"github.com/farseer-go/fs/container"
 	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
@@ -25,16 +26,16 @@ func TestSetProfilesInMemory(t *testing.T) {
 	})
 
 	cache.SetProfilesInMemory[po]("test", "Name", 5)
-	cacheMange := cache.GetCacheManage[po]("test")
 
-	assert.Equal(t, cacheMange.Key, "test")
-	assert.Equal(t, cacheMange.UniqueField, "Name")
-	assert.Nil(t, cacheMange.Cache)
-	assert.Equal(t, cacheMange.MemoryExpiry, time.Duration(5))
-	assert.Equal(t, cacheMange.CacheStoreType, eumCacheStoreType.Memory)
-	assert.Equal(t, cacheMange.ItemType, reflect.TypeOf(po{}))
-	assert.Equal(t, cacheMange.RedisConfigName, "")
-	assert.Equal(t, cacheMange.RedisExpiry, time.Duration(0))
+	cacheManage := container.Resolve[cache.ICacheManage[po]]("test")
+	assert.Equal(t, cacheManage.Key().Key, "test")
+	assert.Equal(t, cacheManage.Key().UniqueField, "Name")
+	assert.Nil(t, cacheManage.Key().Cache)
+	assert.Equal(t, cacheManage.Key().MemoryExpiry, time.Duration(5))
+	assert.Equal(t, cacheManage.Key().CacheStoreType, eumCacheStoreType.Memory)
+	assert.Equal(t, cacheManage.Key().ItemType, reflect.TypeOf(po{}))
+	assert.Equal(t, cacheManage.Key().RedisConfigName, "")
+	assert.Equal(t, cacheManage.Key().RedisExpiry, time.Duration(0))
 
 	fs.Exit()
 }
@@ -50,16 +51,16 @@ func TestSetProfilesInRedis(t *testing.T) {
 	})
 
 	cache.SetProfilesInRedis[po]("test1", "default", "Name", 5)
-	cacheMange := cache.GetCacheManage[po]("test1")
+	cacheManage := container.Resolve[cache.ICacheManage[po]]("test1")
 
-	assert.Equal(t, cacheMange.Key, "test1")
-	assert.Equal(t, cacheMange.UniqueField, "Name")
-	assert.Nil(t, cacheMange.Cache)
-	assert.Equal(t, cacheMange.MemoryExpiry, time.Duration(0))
-	assert.Equal(t, cacheMange.CacheStoreType, eumCacheStoreType.Redis)
-	assert.Equal(t, cacheMange.ItemType, reflect.TypeOf(po{}))
-	assert.Equal(t, cacheMange.RedisConfigName, "default")
-	assert.Equal(t, cacheMange.RedisExpiry, time.Duration(5))
+	assert.Equal(t, cacheManage.Key().Key, "test1")
+	assert.Equal(t, cacheManage.Key().UniqueField, "Name")
+	assert.Nil(t, cacheManage.Key().Cache)
+	assert.Equal(t, cacheManage.Key().MemoryExpiry, time.Duration(0))
+	assert.Equal(t, cacheManage.Key().CacheStoreType, eumCacheStoreType.Redis)
+	assert.Equal(t, cacheManage.Key().ItemType, reflect.TypeOf(po{}))
+	assert.Equal(t, cacheManage.Key().RedisConfigName, "default")
+	assert.Equal(t, cacheManage.Key().RedisExpiry, time.Duration(5))
 }
 
 func TestSetProfilesInMemoryAndRedis(t *testing.T) {
@@ -73,61 +74,61 @@ func TestSetProfilesInMemoryAndRedis(t *testing.T) {
 	})
 
 	cache.SetProfilesInMemoryAndRedis[po]("test2", "default", "Name", 5, 6)
-	cacheMange := cache.GetCacheManage[po]("test2")
+	cacheManage := container.Resolve[cache.ICacheManage[po]]("test2")
 
-	assert.Equal(t, cacheMange.Key, "test2")
-	assert.Equal(t, cacheMange.UniqueField, "Name")
-	assert.Nil(t, cacheMange.Cache)
-	assert.Equal(t, cacheMange.MemoryExpiry, time.Duration(6))
-	assert.Equal(t, cacheMange.CacheStoreType, eumCacheStoreType.MemoryAndRedis)
-	assert.Equal(t, cacheMange.ItemType, reflect.TypeOf(po{}))
-	assert.Equal(t, cacheMange.RedisConfigName, "default")
-	assert.Equal(t, cacheMange.RedisExpiry, time.Duration(5))
+	assert.Equal(t, cacheManage.Key().Key, "test2")
+	assert.Equal(t, cacheManage.Key().UniqueField, "Name")
+	assert.Nil(t, cacheManage.Key().Cache)
+	assert.Equal(t, cacheManage.Key().MemoryExpiry, time.Duration(6))
+	assert.Equal(t, cacheManage.Key().CacheStoreType, eumCacheStoreType.MemoryAndRedis)
+	assert.Equal(t, cacheManage.Key().ItemType, reflect.TypeOf(po{}))
+	assert.Equal(t, cacheManage.Key().RedisConfigName, "default")
+	assert.Equal(t, cacheManage.Key().RedisExpiry, time.Duration(5))
 }
 
 /*
 func TestSetSingleProfilesInMemory(t *testing.T) {
 	fs.Initialize[Module]("unit test")
 	SetSingleProfilesInMemory[po]("test3", 5)
-	cacheMange := GetCacheManage[po]("test3")
+	cacheManage := container.Resolve[cache.ICacheManage[po]]("test3")
 
-	assert.Equal(t, cacheMange.Key, "test3")
-	assert.Equal(t, cacheMange.UniqueField, "")
-	assert.Nil(t, cacheMange.Cache)
-	assert.Equal(t, cacheMange.MemoryExpiry, time.Duration(5))
-	assert.Equal(t, cacheMange.CacheStoreType, eumCacheStoreType.Memory)
-	assert.Equal(t, cacheMange.ItemType, reflect.TypeOf(po{}))
-	assert.Equal(t, cacheMange.RedisConfigName, "")
-	assert.Equal(t, cacheMange.RedisExpiry, time.Duration(0))
+	assert.Equal(t, cacheManage.Key, "test3")
+	assert.Equal(t, cacheManage.UniqueField, "")
+	assert.Nil(t, cacheManage.Cache)
+	assert.Equal(t, cacheManage.MemoryExpiry, time.Duration(5))
+	assert.Equal(t, cacheManage.CacheStoreType, eumCacheStoreType.Memory)
+	assert.Equal(t, cacheManage.ItemType, reflect.TypeOf(po{}))
+	assert.Equal(t, cacheManage.RedisConfigName, "")
+	assert.Equal(t, cacheManage.RedisExpiry, time.Duration(0))
 }
 
 func TestSetSingleProfilesInRedis(t *testing.T) {
 	fs.Initialize[Module]("unit test")
 	SetSingleProfilesInRedis[po]("test4", "default", 5)
-	cacheMange := GetCacheManage[po]("test4")
+	cacheManage := container.Resolve[cache.ICacheManage[po]]("test4")
 
-	assert.Equal(t, cacheMange.Key, "test4")
-	assert.Equal(t, cacheMange.UniqueField, "")
-	assert.Nil(t, cacheMange.Cache)
-	assert.Equal(t, cacheMange.MemoryExpiry, time.Duration(0))
-	assert.Equal(t, cacheMange.CacheStoreType, eumCacheStoreType.Redis)
-	assert.Equal(t, cacheMange.ItemType, reflect.TypeOf(po{}))
-	assert.Equal(t, cacheMange.RedisConfigName, "default")
-	assert.Equal(t, cacheMange.RedisExpiry, time.Duration(5))
+	assert.Equal(t, cacheManage.Key, "test4")
+	assert.Equal(t, cacheManage.UniqueField, "")
+	assert.Nil(t, cacheManage.Cache)
+	assert.Equal(t, cacheManage.MemoryExpiry, time.Duration(0))
+	assert.Equal(t, cacheManage.CacheStoreType, eumCacheStoreType.Redis)
+	assert.Equal(t, cacheManage.ItemType, reflect.TypeOf(po{}))
+	assert.Equal(t, cacheManage.RedisConfigName, "default")
+	assert.Equal(t, cacheManage.RedisExpiry, time.Duration(5))
 }
 
 func TestSetSingleProfilesInMemoryAndRedis(t *testing.T) {
 	fs.Initialize[Module]("unit test")
 	SetSingleProfilesInMemoryAndRedis[po]("test5", "default", 6, 7)
-	cacheMange := GetCacheManage[po]("test5")
+	cacheManage := container.Resolve[cache.ICacheManage[po]]("test5")
 
-	assert.Equal(t, cacheMange.Key, "test5")
-	assert.Equal(t, cacheMange.UniqueField, "")
-	assert.Nil(t, cacheMange.Cache)
-	assert.Equal(t, cacheMange.MemoryExpiry, time.Duration(7))
-	assert.Equal(t, cacheMange.CacheStoreType, eumCacheStoreType.MemoryAndRedis)
-	assert.Equal(t, cacheMange.ItemType, reflect.TypeOf(po{}))
-	assert.Equal(t, cacheMange.RedisConfigName, "default")
-	assert.Equal(t, cacheMange.RedisExpiry, time.Duration(6))
+	assert.Equal(t, cacheManage.Key, "test5")
+	assert.Equal(t, cacheManage.UniqueField, "")
+	assert.Nil(t, cacheManage.Cache)
+	assert.Equal(t, cacheManage.MemoryExpiry, time.Duration(7))
+	assert.Equal(t, cacheManage.CacheStoreType, eumCacheStoreType.MemoryAndRedis)
+	assert.Equal(t, cacheManage.ItemType, reflect.TypeOf(po{}))
+	assert.Equal(t, cacheManage.RedisConfigName, "default")
+	assert.Equal(t, cacheManage.RedisExpiry, time.Duration(6))
 }
 */

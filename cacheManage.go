@@ -1,45 +1,14 @@
 package cache
 
 import (
-	"github.com/farseer-go/cache/eumCacheStoreType"
 	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/parse"
 	"github.com/farseer-go/fs/stopwatch"
 	"github.com/farseer-go/mapper"
-	"reflect"
-	"time"
 )
 
-// value=CacheManage
-var cacheConfigure map[string]any
-
-type CacheKey struct {
-	// 缓存KEY
-	Key string
-	// 缓存策略（默认Memory模式）
-	CacheStoreType eumCacheStoreType.Enum
-	// 设置Redis缓存过期时间
-	RedisExpiry time.Duration
-	// 设置Memory缓存过期时间
-	MemoryExpiry time.Duration
-	// hash中的主键（唯一ID的字段名称）
-	UniqueField string
-	// Redis配置名称
-	RedisConfigName string
-	// 获取缓存实现
-	Cache ICache
-	// ItemType
-	ItemType reflect.Type
-}
-
-// GetUniqueId 获取唯一字段数据
-func (receiver CacheKey) GetUniqueId(item any) (T string) {
-	val := reflect.ValueOf(item).FieldByName(receiver.UniqueField).Interface()
-	return parse.Convert(val, "")
-}
-
-type CacheManage[TEntity any] struct {
+type cacheManage[TEntity any] struct {
 	// 缓存key
 	CacheKey
 	// 集合的数据的来源
@@ -51,32 +20,23 @@ type CacheManage[TEntity any] struct {
 	itemNullToLoadALl bool
 }
 
-// GetCacheManage 获取CacheKey
-func GetCacheManage[TEntity any](key string) CacheManage[TEntity] {
-	cacheKey, exists := cacheConfigure[key]
-	if !exists {
-		panic(key + "不存在，要使用Cache缓存，需提前初始化")
-	}
-	return cacheKey.(CacheManage[TEntity])
-}
-
 // SetListSource 集合数据不存在时，则通过getListSourceFn获取
-func (receiver *CacheManage[TEntity]) SetListSource(getListSourceFn func() collections.List[TEntity]) {
+func (receiver *cacheManage[TEntity]) SetListSource(getListSourceFn func() collections.List[TEntity]) {
 	receiver.listSourceFn = getListSourceFn
 }
 
 // SetItemSource 元素不存在时，则通过getItemSourceFn获取
-func (receiver *CacheManage[TEntity]) SetItemSource(getItemSourceFn func(cacheId any) (TEntity, bool)) {
+func (receiver *cacheManage[TEntity]) SetItemSource(getItemSourceFn func(cacheId any) (TEntity, bool)) {
 	receiver.itemSourceFn = getItemSourceFn
 }
 
 // EnableItemNullToLoadALl 元素不存在时，自动读取集合数据源
-func (receiver *CacheManage[TEntity]) EnableItemNullToLoadALl() {
+func (receiver *cacheManage[TEntity]) EnableItemNullToLoadALl() {
 	receiver.itemNullToLoadALl = true
 }
 
 // Get 获取缓存数据
-func (receiver CacheManage[TEntity]) Get() collections.List[TEntity] {
+func (receiver *cacheManage[TEntity]) Get() collections.List[TEntity] {
 	sw := stopwatch.StartNew()
 	defer func() {
 		flog.ComponentInfof("cacheManage", ".Get：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
@@ -93,7 +53,7 @@ func (receiver CacheManage[TEntity]) Get() collections.List[TEntity] {
 }
 
 // Single 获取单个对象
-func (receiver CacheManage[TEntity]) Single() TEntity {
+func (receiver *cacheManage[TEntity]) Single() TEntity {
 	sw := stopwatch.StartNew()
 	defer func() {
 		flog.ComponentInfof("cacheManage", ".Single：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
@@ -104,7 +64,7 @@ func (receiver CacheManage[TEntity]) Single() TEntity {
 }
 
 // GetItem 从集合中获取指定cacheId的元素
-func (receiver CacheManage[TEntity]) GetItem(cacheId any) (TEntity, bool) {
+func (receiver *cacheManage[TEntity]) GetItem(cacheId any) (TEntity, bool) {
 	sw := stopwatch.StartNew()
 	defer func() {
 		flog.ComponentInfof("cacheManage", ".GetItem：%s.%v，耗时：%s", receiver.Key, cacheId, sw.GetMillisecondsText())
@@ -139,7 +99,7 @@ func (receiver CacheManage[TEntity]) GetItem(cacheId any) (TEntity, bool) {
 }
 
 // Set 缓存整个集合，将覆盖原有集合（如果有数据）
-func (receiver CacheManage[TEntity]) Set(val ...TEntity) {
+func (receiver *cacheManage[TEntity]) Set(val ...TEntity) {
 	if len(val) == 0 {
 		return
 	}
@@ -156,7 +116,7 @@ func (receiver CacheManage[TEntity]) Set(val ...TEntity) {
 }
 
 // SaveItem 更新item数据到集合
-func (receiver CacheManage[TEntity]) SaveItem(newVal TEntity) {
+func (receiver *cacheManage[TEntity]) SaveItem(newVal TEntity) {
 	sw := stopwatch.StartNew()
 	defer func() {
 		flog.ComponentInfof("cacheManage", ".SaveItem：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
@@ -166,17 +126,17 @@ func (receiver CacheManage[TEntity]) SaveItem(newVal TEntity) {
 }
 
 // Remove 移除集合中的item数据
-func (receiver CacheManage[TEntity]) Remove(cacheId string) {
+func (receiver *cacheManage[TEntity]) Remove(cacheId string) {
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.ComponentInfof("[cacheManage].Remove：%s.%v，耗时：%s", receiver.Key, cacheId, sw.GetMillisecondsText())
+		flog.ComponentInfof("[cacheManage].Remove：%s.%v，耗时：%s", receiver.CacheKey.Key, cacheId, sw.GetMillisecondsText())
 	}()
 
 	receiver.Cache.Remove(receiver.CacheKey, cacheId)
 }
 
 // Clear 清空数据
-func (receiver CacheManage[TEntity]) Clear() {
+func (receiver *cacheManage[TEntity]) Clear() {
 	sw := stopwatch.StartNew()
 	defer func() {
 		flog.ComponentInfof("cacheManage", ".Clear：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
@@ -186,7 +146,7 @@ func (receiver CacheManage[TEntity]) Clear() {
 }
 
 // ExistsKey 缓存集合是否存在：如果没初始过Key，或者Key缓存已失效，都会返回false
-func (receiver CacheManage[TEntity]) ExistsKey() bool {
+func (receiver *cacheManage[TEntity]) ExistsKey() bool {
 	sw := stopwatch.StartNew()
 	defer func() {
 		flog.ComponentInfof("cacheManage", ".ExistsKey：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
@@ -196,7 +156,7 @@ func (receiver CacheManage[TEntity]) ExistsKey() bool {
 }
 
 // ExistsItem 缓存是否存在
-func (receiver CacheManage[TEntity]) ExistsItem(cacheId string) bool {
+func (receiver *cacheManage[TEntity]) ExistsItem(cacheId string) bool {
 	sw := stopwatch.StartNew()
 	defer func() {
 		flog.ComponentInfof("cacheManage", ".ExistsItem：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
@@ -206,7 +166,7 @@ func (receiver CacheManage[TEntity]) ExistsItem(cacheId string) bool {
 }
 
 // Count 获取集合内的数量
-func (receiver CacheManage[TEntity]) Count() int {
+func (receiver *cacheManage[TEntity]) Count() int {
 	sw := stopwatch.StartNew()
 	defer func() {
 		flog.ComponentInfof("cacheManage", ".Count：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
@@ -216,4 +176,8 @@ func (receiver CacheManage[TEntity]) Count() int {
 		return 0
 	}
 	return receiver.Cache.Count(receiver.CacheKey)
+}
+
+func (receiver *cacheManage[TEntity]) Key() CacheKey {
+	return receiver.CacheKey
 }

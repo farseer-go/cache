@@ -12,7 +12,6 @@ func (module Module) DependsModule() []modules.FarseerModule {
 }
 
 func (module Module) PreInitialize() {
-	cacheConfigure = make(map[string]any)
 }
 
 func (module Module) Initialize() {
