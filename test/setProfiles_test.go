@@ -37,7 +37,6 @@ func TestSetProfilesInMemory(t *testing.T) {
 	assert.Equal(t, cacheManage.Key().RedisConfigName, "")
 	assert.Equal(t, cacheManage.Key().RedisExpiry, time.Duration(0))
 
-	fs.Exit()
 }
 
 func TestSetProfilesInRedis(t *testing.T) {
