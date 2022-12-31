@@ -9,8 +9,10 @@ import (
 )
 
 type cacheManage[TEntity any] struct {
-	// 缓存key
-	CacheKey
+	// 缓存KEY
+	key string
+	// 获取缓存实现
+	cache ICache
 	// 集合的数据的来源
 	listSourceFn func() collections.List[TEntity]
 	// item的数据来源
@@ -39,10 +41,10 @@ func (receiver *cacheManage[TEntity]) EnableItemNullToLoadALl() {
 func (receiver *cacheManage[TEntity]) Get() collections.List[TEntity] {
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.ComponentInfof("cacheManage", ".Get：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
+		flog.ComponentInfof("cacheManage", ".Get：%s，耗时：%s", receiver.key, sw.GetMillisecondsText())
 	}()
 
-	lst := receiver.Cache.Get(receiver.CacheKey)
+	lst := receiver.cache.Get()
 	// 如果数据为空，则调用数据源
 	if lst.IsEmpty() && receiver.listSourceFn != nil {
 		lstSource := receiver.listSourceFn()
@@ -56,7 +58,7 @@ func (receiver *cacheManage[TEntity]) Get() collections.List[TEntity] {
 func (receiver *cacheManage[TEntity]) Single() TEntity {
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.ComponentInfof("cacheManage", ".Single：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
+		flog.ComponentInfof("cacheManage", ".Single：%s，耗时：%s", receiver.key, sw.GetMillisecondsText())
 	}()
 
 	lst := receiver.Get()
@@ -67,10 +69,10 @@ func (receiver *cacheManage[TEntity]) Single() TEntity {
 func (receiver *cacheManage[TEntity]) GetItem(cacheId any) (TEntity, bool) {
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.ComponentInfof("cacheManage", ".GetItem：%s.%v，耗时：%s", receiver.Key, cacheId, sw.GetMillisecondsText())
+		flog.ComponentInfof("cacheManage", ".GetItem：%s.%v，耗时：%s", receiver.key, cacheId, sw.GetMillisecondsText())
 	}()
 
-	item := receiver.Cache.GetItem(receiver.CacheKey, parse.Convert(cacheId, ""))
+	item := receiver.cache.GetItem(parse.Convert(cacheId, ""))
 	if item == nil {
 		// 设置了单独的数据源时，则只读item数据源
 		if receiver.itemSourceFn != nil {
@@ -86,7 +88,7 @@ func (receiver *cacheManage[TEntity]) GetItem(cacheId any) (TEntity, bool) {
 			receiver.Set(lstSource.ToArray()...)
 			// 从列表中读取元素
 			for _, source := range lstSource.ToArray() {
-				id := receiver.GetUniqueId(source)
+				id := receiver.cache.GetUniqueId(source)
 				if cacheId == id {
 					return source, true
 				}
@@ -105,79 +107,75 @@ func (receiver *cacheManage[TEntity]) Set(val ...TEntity) {
 	}
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.ComponentInfof("cacheManage", ".Set：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
+		flog.ComponentInfof("cacheManage", ".Set：%s，耗时：%s", receiver.key, sw.GetMillisecondsText())
 	}()
 
 	lst := collections.NewListAny()
 	for _, entity := range val {
 		lst.Add(entity)
 	}
-	receiver.Cache.Set(receiver.CacheKey, lst)
+	receiver.cache.Set(lst)
 }
 
 // SaveItem 更新item数据到集合
 func (receiver *cacheManage[TEntity]) SaveItem(newVal TEntity) {
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.ComponentInfof("cacheManage", ".SaveItem：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
+		flog.ComponentInfof("cacheManage", ".SaveItem：%s，耗时：%s", receiver.key, sw.GetMillisecondsText())
 	}()
 
-	receiver.Cache.SaveItem(receiver.CacheKey, newVal)
+	receiver.cache.SaveItem(newVal)
 }
 
 // Remove 移除集合中的item数据
 func (receiver *cacheManage[TEntity]) Remove(cacheId string) {
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.ComponentInfof("[cacheManage].Remove：%s.%v，耗时：%s", receiver.CacheKey.Key, cacheId, sw.GetMillisecondsText())
+		flog.ComponentInfof("[cacheManage].Remove：%s.%v，耗时：%s", receiver.key, cacheId, sw.GetMillisecondsText())
 	}()
 
-	receiver.Cache.Remove(receiver.CacheKey, cacheId)
+	receiver.cache.Remove(cacheId)
 }
 
 // Clear 清空数据
 func (receiver *cacheManage[TEntity]) Clear() {
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.ComponentInfof("cacheManage", ".Clear：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
+		flog.ComponentInfof("cacheManage", ".Clear：%s，耗时：%s", receiver.key, sw.GetMillisecondsText())
 	}()
 
-	receiver.Cache.Clear(receiver.CacheKey)
+	receiver.cache.Clear()
 }
 
 // ExistsKey 缓存集合是否存在：如果没初始过Key，或者Key缓存已失效，都会返回false
 func (receiver *cacheManage[TEntity]) ExistsKey() bool {
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.ComponentInfof("cacheManage", ".ExistsKey：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
+		flog.ComponentInfof("cacheManage", ".ExistsKey：%s，耗时：%s", receiver.key, sw.GetMillisecondsText())
 	}()
 
-	return receiver.Cache.ExistsKey(receiver.CacheKey)
+	return receiver.cache.ExistsKey()
 }
 
 // ExistsItem 缓存是否存在
 func (receiver *cacheManage[TEntity]) ExistsItem(cacheId string) bool {
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.ComponentInfof("cacheManage", ".ExistsItem：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
+		flog.ComponentInfof("cacheManage", ".ExistsItem：%s，耗时：%s", receiver.key, sw.GetMillisecondsText())
 	}()
 
-	return receiver.Cache.ExistsItem(receiver.CacheKey, cacheId)
+	return receiver.cache.ExistsItem(cacheId)
 }
 
 // Count 获取集合内的数量
 func (receiver *cacheManage[TEntity]) Count() int {
 	sw := stopwatch.StartNew()
 	defer func() {
-		flog.ComponentInfof("cacheManage", ".Count：%s，耗时：%s", receiver.Key, sw.GetMillisecondsText())
+		flog.ComponentInfof("cacheManage", ".Count：%s，耗时：%s", receiver.key, sw.GetMillisecondsText())
 	}()
 
 	if !receiver.ExistsKey() {
 		return 0
 	}
-	return receiver.Cache.Count(receiver.CacheKey)
-}
-
-func (receiver *cacheManage[TEntity]) Key() CacheKey {
-	return receiver.CacheKey
+	return receiver.cache.Count()
 }
