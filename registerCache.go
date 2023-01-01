@@ -6,7 +6,7 @@ import (
 	"reflect"
 )
 
-func RegisterCacheModule[TEntity any](key string, cacheStoreType string, uniqueField string, cache ICache) {
+func RegisterCacheModule[TEntity any](key string, cacheStoreType string, uniqueField string, cache ICache) ICacheManage[TEntity] {
 	if uniqueField == "" {
 		exception.ThrowRefuseException("缓存集合数据时，需要设置UniqueField字段")
 	}
@@ -22,4 +22,5 @@ func RegisterCacheModule[TEntity any](key string, cacheStoreType string, uniqueF
 		cache: cache,
 	}
 	container.RegisterInstance[ICacheManage[TEntity]](cacheManage, key)
+	return cacheManage
 }

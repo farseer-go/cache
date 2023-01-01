@@ -32,8 +32,8 @@ func (receiver *cacheManage[TEntity]) SetItemSource(getItemSourceFn func(cacheId
 	receiver.itemSourceFn = getItemSourceFn
 }
 
-// EnableItemNullToLoadALl 元素不存在时，自动读取集合数据源
-func (receiver *cacheManage[TEntity]) EnableItemNullToLoadALl() {
+// EnableItemNullToLoadAll 元素不存在时，自动读取集合数据源
+func (receiver *cacheManage[TEntity]) EnableItemNullToLoadAll() {
 	receiver.itemNullToLoadALl = true
 }
 
