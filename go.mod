@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/farseer-go/collections v0.3.1-0.20221231211338-1daefcb932a1
-	github.com/farseer-go/fs v0.5.0
+	github.com/farseer-go/fs v0.5.1-0.20230101111313-3216f37fdc4b
 	github.com/farseer-go/mapper v0.2.0
 )
 
