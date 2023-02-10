@@ -1,6 +1,9 @@
 package cache
 
-import "github.com/farseer-go/collections"
+import (
+	"github.com/farseer-go/collections"
+	"time"
+)
 
 type ICacheManage[TEntity any] interface {
 	// SetListSource 集合数据不存在时，则通过getListSourceFn获取
@@ -29,4 +32,8 @@ type ICacheManage[TEntity any] interface {
 	ExistsItem(cacheId string) bool
 	// Count 获取集合内的数量
 	Count() int
+	// SetSyncSource 设置定义将缓存的数据同步到你需要的位置，比如同步到数据库
+	SetSyncSource(duration time.Duration, f func(val TEntity))
+	// SetClearSource 设置定义清理缓存中的数据
+	SetClearSource(duration time.Duration, f func(val TEntity) bool)
 }

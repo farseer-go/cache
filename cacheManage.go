@@ -2,10 +2,12 @@ package cache
 
 import (
 	"github.com/farseer-go/collections"
+	"github.com/farseer-go/fs"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/parse"
 	"github.com/farseer-go/fs/stopwatch"
 	"github.com/farseer-go/mapper"
+	"time"
 )
 
 type cacheManage[TEntity any] struct {
@@ -178,4 +180,44 @@ func (receiver *cacheManage[TEntity]) Count() int {
 		return 0
 	}
 	return receiver.cache.Count()
+}
+
+// SetSyncSource 设置定义将缓存的数据同步到你需要的位置，比如同步到数据库
+func (receiver *cacheManage[TEntity]) SetSyncSource(duration time.Duration, f func(val TEntity)) {
+	go func() {
+		timer := time.NewTimer(duration)
+		for {
+			timer.Reset(duration)
+			select {
+			case <-timer.C:
+				lst := receiver.Get()
+				for i := 0; i < lst.Count(); i++ {
+					f(lst.Index(i))
+				}
+			case <-fs.Context.Done():
+				return
+			}
+		}
+	}()
+}
+
+// SetClearSource 设置定义清理缓存中的数据
+func (receiver *cacheManage[TEntity]) SetClearSource(duration time.Duration, f func(val TEntity) bool) {
+	go func() {
+		timer := time.NewTimer(duration)
+		for {
+			timer.Reset(duration)
+			select {
+			case <-timer.C:
+				lst := receiver.Get()
+				for i := 0; i < lst.Count(); i++ {
+					if f(lst.Index(i)) {
+						receiver.Remove(receiver.cache.GetUniqueId(lst.Index(i)))
+					}
+				}
+			case <-fs.Context.Done():
+				return
+			}
+		}
+	}()
 }
