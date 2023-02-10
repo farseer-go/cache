@@ -182,7 +182,7 @@ func (receiver *cacheManage[TEntity]) Count() int {
 	return receiver.cache.Count()
 }
 
-// SetSyncSource 设置定义将缓存的数据同步到你需要的位置，比如同步到数据库
+// SetSyncSource 设置将缓存的数据同步到你需要的位置，比如同步到数据库
 func (receiver *cacheManage[TEntity]) SetSyncSource(duration time.Duration, f func(val TEntity)) {
 	go func() {
 		timer := time.NewTimer(duration)
@@ -201,7 +201,7 @@ func (receiver *cacheManage[TEntity]) SetSyncSource(duration time.Duration, f fu
 	}()
 }
 
-// SetClearSource 设置定义清理缓存中的数据
+// SetClearSource 设置清理缓存中的数据
 func (receiver *cacheManage[TEntity]) SetClearSource(duration time.Duration, f func(val TEntity) bool) {
 	go func() {
 		timer := time.NewTimer(duration)
