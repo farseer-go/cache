@@ -23,13 +23,13 @@ type ICacheManage[TEntity any] interface {
 	// SaveItem 更新item数据到集合
 	SaveItem(newVal TEntity)
 	// Remove 移除集合中的item数据
-	Remove(cacheId string)
+	Remove(cacheId any)
 	// Clear 清空数据
 	Clear()
 	// ExistsKey 缓存集合是否存在：如果没初始过Key，或者Key缓存已失效，都会返回false
 	ExistsKey() bool
 	// ExistsItem 缓存是否存在
-	ExistsItem(cacheId string) bool
+	ExistsItem(cacheId any) bool
 	// Count 获取集合内的数量
 	Count() int
 	// SetSyncSource 设置定义将缓存的数据同步到你需要的位置，比如同步到数据库

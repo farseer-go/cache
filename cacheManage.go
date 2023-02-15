@@ -130,7 +130,7 @@ func (receiver *cacheManage[TEntity]) SaveItem(newVal TEntity) {
 }
 
 // Remove 移除集合中的item数据
-func (receiver *cacheManage[TEntity]) Remove(cacheId string) {
+func (receiver *cacheManage[TEntity]) Remove(cacheId any) {
 	sw := stopwatch.StartNew()
 	defer func() {
 		flog.ComponentInfof("[cacheManage].Remove：%s.%v，耗时：%s", receiver.key, cacheId, sw.GetMillisecondsText())
@@ -160,7 +160,7 @@ func (receiver *cacheManage[TEntity]) ExistsKey() bool {
 }
 
 // ExistsItem 缓存是否存在
-func (receiver *cacheManage[TEntity]) ExistsItem(cacheId string) bool {
+func (receiver *cacheManage[TEntity]) ExistsItem(cacheId any) bool {
 	sw := stopwatch.StartNew()
 	defer func() {
 		flog.ComponentInfof("cacheManage", ".ExistsItem：%s，耗时：%s", receiver.key, sw.GetMillisecondsText())
