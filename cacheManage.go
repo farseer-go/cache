@@ -7,6 +7,7 @@ import (
 	"github.com/farseer-go/fs/parse"
 	"github.com/farseer-go/fs/stopwatch"
 	"github.com/farseer-go/mapper"
+	"runtime"
 	"time"
 )
 
@@ -193,6 +194,7 @@ func (receiver *cacheManage[TEntity]) SetSyncSource(duration time.Duration, f fu
 				lst := receiver.Get()
 				for i := 0; i < lst.Count(); i++ {
 					f(lst.Index(i))
+					runtime.Gosched()
 				}
 			case <-fs.Context.Done():
 				return
@@ -214,6 +216,7 @@ func (receiver *cacheManage[TEntity]) SetClearSource(duration time.Duration, f f
 					if f(lst.Index(i)) {
 						receiver.Remove(receiver.cache.GetUniqueId(lst.Index(i)))
 					}
+					runtime.Gosched()
 				}
 			case <-fs.Context.Done():
 				return
