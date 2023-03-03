@@ -6,6 +6,7 @@ import (
 	"reflect"
 )
 
+// RegisterCacheModule 注册缓存
 func RegisterCacheModule[TEntity any](key string, cacheStoreType string, uniqueField string, cache ICache) ICacheManage[TEntity] {
 	if uniqueField == "" {
 		exception.ThrowRefuseException("缓存集合数据时，需要设置UniqueField字段")
