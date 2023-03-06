@@ -177,10 +177,12 @@ func (receiver *cacheManage[TEntity]) Count() int {
 		flog.ComponentInfof("cacheManage", ".Count：%s，耗时：%s", receiver.key, sw.GetMillisecondsText())
 	}()
 
-	if !receiver.ExistsKey() {
-		return 0
+	count := receiver.cache.Count()
+	if count == 0 && !receiver.ExistsKey() {
+		// key不存在，需要重新读一遍Get
+		return receiver.Get().Count()
 	}
-	return receiver.cache.Count()
+	return count
 }
 
 // SetSyncSource 设置将缓存的数据同步到你需要的位置，比如同步到数据库
