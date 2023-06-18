@@ -10,7 +10,7 @@ type ICache interface {
 	Get() collections.ListAny
 	// GetItem 获取集合中的item
 	GetItem(cacheId any) any
-	// Set 整个数据保存到缓存
+	// Set 整个数据保存到缓存（失效时间只在这里调用后，才会生效）
 	Set(val collections.ListAny)
 	// SaveItem 添加或修改集合的Item
 	SaveItem(newVal any)
