@@ -21,7 +21,7 @@
 
 缓存支持`将数据集合临时缓存`，集合中的数据`需要有唯一标识`。
 
-此包为接口规范，具体实现在：
+此包为接口规范，具体实现在:
 
 - [cacheMemory](https://github.com/farseer-go/cacheMemory)
 - [redis](https://github.com/farseer-go/redis)
