@@ -1,6 +1,8 @@
 module github.com/farseer-go/cache
 
-go 1.19
+go 1.21
+
+toolchain go1.22.0
 
 require (
 	github.com/farseer-go/collections v0.13.0
@@ -14,3 +16,5 @@ require (
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+exclude github.com/timandy/routine v1.1.3
