@@ -1,13 +1,13 @@
 module github.com/farseer-go/cache
 
-go 1.19
+go 1.21
 
 toolchain go1.22.0
 
 require (
 	github.com/farseer-go/collections v0.14.0
 	github.com/farseer-go/fs v0.14.0
-	github.com/farseer-go/mapper v0.13.0
+	github.com/farseer-go/mapper v0.14.0
 )
 
 require (
