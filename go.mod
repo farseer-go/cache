@@ -11,6 +11,7 @@ require (
 )
 
 exclude github.com/timandy/routine v1.1.3
+
 require (
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/timandy/routine v1.1.2 // indirect
