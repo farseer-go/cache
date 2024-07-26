@@ -3,7 +3,6 @@ package cache
 import (
 	"github.com/farseer-go/collections"
 	"github.com/farseer-go/fs"
-	"github.com/farseer-go/fs/parse"
 	"github.com/farseer-go/mapper"
 	"runtime"
 	"time"
@@ -58,7 +57,7 @@ func (receiver *cacheManage[TEntity]) Single() TEntity {
 
 // GetItem 从集合中获取指定cacheId的元素
 func (receiver *cacheManage[TEntity]) GetItem(cacheId any) (TEntity, bool) {
-	item := receiver.cache.GetItem(parse.ToString(cacheId))
+	item := receiver.cache.GetItem(cacheId)
 	if item == nil {
 		// 设置了单独的数据源时，则只读item数据源
 		if receiver.itemSourceFn != nil {
@@ -84,6 +83,16 @@ func (receiver *cacheManage[TEntity]) GetItem(cacheId any) (TEntity, bool) {
 		return entity, false
 	}
 	return item.(TEntity), true
+}
+
+// GetItems 从集合中获取多个cacheId的元素
+func (receiver *cacheManage[TEntity]) GetItems(cacheIds ...any) collections.List[TEntity] {
+	items := receiver.cache.GetItems(cacheIds)
+	lst := collections.NewList[TEntity]()
+	for _, item := range items.ToArray() {
+		lst.Add(*item.(*TEntity))
+	}
+	return lst
 }
 
 // Set 缓存整个集合，将覆盖原有集合（如果有数据）

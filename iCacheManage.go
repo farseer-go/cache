@@ -18,6 +18,8 @@ type ICacheManage[TEntity any] interface {
 	Single() TEntity
 	// GetItem 从集合中获取指定cacheId的元素
 	GetItem(cacheId any) (TEntity, bool)
+	// GetItems 从集合中获取多个cacheId的元素
+	GetItems(cacheIds ...any) collections.List[TEntity]
 	// Set 缓存整个集合，将覆盖原有集合（如果有数据）
 	Set(val ...TEntity)
 	// SaveItem 更新item数据到集合
