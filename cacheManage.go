@@ -58,7 +58,7 @@ func (receiver *cacheManage[TEntity]) Single() TEntity {
 
 // GetItem 从集合中获取指定cacheId的元素
 func (receiver *cacheManage[TEntity]) GetItem(cacheId any) (TEntity, bool) {
-	item := receiver.cache.GetItem(parse.Convert(cacheId, ""))
+	item := receiver.cache.GetItem(parse.ToString(cacheId))
 	if item == nil {
 		// 设置了单独的数据源时，则只读item数据源
 		if receiver.itemSourceFn != nil {
