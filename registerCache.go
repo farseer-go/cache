@@ -1,9 +1,10 @@
 package cache
 
 import (
+	"reflect"
+
 	"github.com/farseer-go/fs/container"
 	"github.com/farseer-go/fs/exception"
-	"reflect"
 )
 
 // RegisterCacheModule 注册缓存
@@ -22,6 +23,8 @@ func RegisterCacheModule[TEntity any](key string, cacheStoreType string, uniqueF
 		key:   key,
 		cache: cache,
 	}
-	container.RegisterInstance[ICacheManage[TEntity]](cacheManage, key)
+	if !container.IsRegister[ICacheManage[TEntity]](key) {
+		container.RegisterInstance(cacheManage, key)
+	}
 	return cacheManage
 }
